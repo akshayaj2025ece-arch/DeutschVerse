@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeutschVerse - Learn German</title>
+    <style>
+        /* General Reset & Layout */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+        }
+
+        /* Main Container */
+        .brand-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* SVG Logo Styling */
+        .logo-mark {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 10px 15px rgba(0, 50, 150, 0.2));
+        }
+
+        /* Typography: Brand Name */
+        .brand-name {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .text-deutsch {
+            color: #0f172a; /* Dark Navy */
+        }
+
+        .text-verse {
+            color: #2563eb; /* Bright Blue */
+        }
+
+        /* Typography: Tagline */
+        .tagline-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .tagline {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .line {
+            height: 1px;
+            width: 40px;
+            background-color: #94a3b8;
+        }
+
+        /* Button Styling */
+        .btn-learn {
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-learn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-learn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand-container">
+        <!-- SVG Vector Logo -->
+        <svg class="logo-mark" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Sky Background Gradient -->
+                <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#083a99" />
+                    <stop offset="60%" stop-color="#2c89f5" />
+                    <stop offset="100%" stop-color="#72bcf8" />
+                </linearGradient>
+                
+                <!-- Sun Radial Glow -->
+                <radialGradient id="sunGlow" cx="50%" cy="80%" r="50%">
+                    <stop offset="0%" stop-color="#ffffff" />
+                    <stop offset="25%" stop-color="#ffeba8" />
+                    <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+                </radialGradient>
+
+                <!-- The "D" Shape Mask -->
+                <clipPath id="dShape">
+                    <!-- Custom path drawing a swooped 'D' -->
+                    <path d="M 40,20 C 75,60 75,140 40,180 L 95,180 A 80,80 0 0,0 175,100 A 80,80 0 0,0 95,20 Z" />
+                </clipPath>
+            </defs>
+
+            <!-- Applied Logo Mask -->
+            <g clip-path="url(#dShape)">
+                <!-- Main Sky -->
+                <rect width="200" height="200" fill="url(#skyGrad)" />
+
+                <!-- Sunburst Lines -->
+                <path d="M 100,160 L 20,40 M 100,160 L 60,20 M 100,160 L 140,20 M 100,160 L 180,40 M 100,160 L 190,80" stroke="rgba(255,255,255,0.15)" stroke-width="3" />
+
+                <!-- Sun -->
+                <circle cx="100" cy="150" r="70" fill="url(#sunGlow)" />
+
+                <!-- Stars -->
+                <!-- Big Sparkle Star -->
+                <path d="M 125,40 Q 130,52 142,52 Q 130,52 130,64 Q 125,52 113,52 Q 125,52 125,40 Z" fill="#ffffff" />
+                <!-- Small Stars -->
+                <circle cx="95" cy="55" r="1.5" fill="#ffffff" />
+                <circle cx="155" cy="75" r="1.5" fill="#ffffff" />
+                <circle cx="115" cy="85" r="1.5" fill="#ffffff" />
+                <circle cx="85" cy="95" r="1" fill="#ffffff" />
+                
+                <!-- Background Cloud Silhouettes -->
+                <circle cx="50" cy="155" r="25" fill="rgba(255,255,255,0.6)" />
+                <circle cx="140" cy="150" r="28" fill="rgba(255,255,255,0.5)" />
+
+                <!-- Foreground Clouds (White overlapping circles) -->
+                <circle cx="35" cy="180" r="25" fill="#ffffff" />
+                <circle cx="75" cy="170" r="22" fill="#ffffff" />
+                <circle cx="110" cy="175" r="25" fill="#ffffff" />
+                <circle cx="145" cy="168" r="20" fill="#ffffff" />
+                <circle cx="175" cy="185" r="25" fill="#ffffff" />
+            </g>
+        </svg>
+
+        <!-- Brand Typography -->
+        <h1 class="brand-name">
+            <span class="text-deutsch">Deutsch</span><span class="text-verse">Verse</span>
+        </h1>
+        
+        <div class="tagline-container">
+            <span class="line"></span>
+            <p class="tagline">Learn German. Reach New Heights.</p>
+            <span class="line"></span>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <a href="Source.html" class="btn-learn">Learn German</a>
+
+</body>
+</html>

@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wolke — Learn German A1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --sky-deep:#173147;
+  --sky-navy:#1c4863;
+  --sky-mid:#4f8fc0;
+  --sky-bright:#8ecae6;
+  --sky-pale:#eaf6fc;
+  --cloud:#ffffff;
+  --sun:#ffb84d;
+  --sun-glow:#ffe1ac;
+  --ink:#173147;
+  --ink-soft:#4c6478;
+  --success:#3f9d64;
+  --success-pale:#e4f5ea;
+  --danger:#e2664f;
+  --danger-pale:#fbeae6;
+  --card-shadow: 0 10px 30px -12px rgba(23,49,71,0.25);
+  --radius: 20px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Figtree', sans-serif;
+  color:var(--ink);
+  min-height:100vh;
+  background: linear-gradient(180deg, #dff1fb 0%, #f2fbff 45%, #fef9ef 100%);
+  overflow-x:hidden;
+  position:relative;
+}
+h1,h2,h3,h4{font-family:'Fraunces', serif; margin:0; letter-spacing:-0.01em;}
+.mono{font-family:'IBM Plex Mono', monospace;}
+button{font-family:inherit; cursor:pointer;}
+a{color:inherit;}
+::selection{background:var(--sun-glow);}
+
+/* Decorative sky background clouds */
+.bg-clouds{position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none;}
+.bg-cloud{position:absolute; opacity:0.55; filter:drop-shadow(0 6px 10px rgba(79,143,192,0.15));}
+.bg-cloud svg{display:block;}
+.bg-cloud.c1{top:6%; left:-4%; width:220px; animation: drift 70s linear infinite;}
+.bg-cloud.c2{top:16%; right:-6%; width:160px; animation: drift 90s linear infinite reverse;}
+.bg-cloud.c3{top:70%; left:-8%; width:260px; animation: drift 110s linear infinite;}
+.bg-cloud.c4{top:45%; right:2%; width:130px; opacity:0.35; animation: drift 60s linear infinite reverse;}
+@keyframes drift{
+  0%{transform:translateX(0);}
+  50%{transform:translateX(60px);}
+  100%{transform:translateX(0);}
+}
+@media (prefers-reduced-motion: reduce){
+  .bg-cloud, .sun-marker, * {animation:none !important; transition:none !important;}
+}
+
+.app-shell{position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column;}
+
+/* ---------- AUTH SCREEN ---------- */
+#authScreen{
+  flex:1; display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.auth-card{
+  width:100%; max-width:400px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter: blur(6px);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  padding:36px 32px;
+  border:1px solid rgba(255,255,255,0.6);
+}
+.auth-brand{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+.auth-brand .sun-icon{width:34px; height:34px;}
+.auth-brand h1{font-size:1.6rem; color:var(--sky-deep);}
+.auth-sub{color:var(--ink-soft); font-size:0.95rem; margin-bottom:26px; line-height:1.5;}
+.field{margin-bottom:16px;}
+.field label{display:block; font-size:0.8rem; font-weight:600; color:var(--sky-navy); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;}
+.field input{
+  width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid #cfe4f0;
+  font-size:1rem; font-family:inherit; background:#fbfeff; color:var(--ink);
+  transition: border-color 0.15s;
+}
+.field input:focus{outline:none; border-color:var(--sky-mid); box-shadow:0 0 0 3px rgba(79,143,192,0.15);}
+.btn{
+  border:none; border-radius:14px; padding:13px 20px; font-weight:600; font-size:1rem;
+  transition: transform 0.1s ease, box-shadow 0.15s ease; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn:active{transform:scale(0.98);}
+.btn-primary{
+  background:linear-gradient(135deg, var(--sun), #ffa451);
+  color:#5a3300; width:100%; box-shadow:0 8px 18px -6px rgba(255,184,77,0.6);
+}
+.btn-primary:hover{box-shadow:0 10px 22px -6px rgba(255,184,77,0.75);}
+.btn-secondary{
+  background:var(--sky-pale); color:var(--sky-deep); width:100%;
+}
+.btn-ghost{
+  background:transparent; color:var(--sky-navy); text-decoration:underline; padding:8px;
+}
+.btn-outline{
+  background:#fff; color:var(--sky-navy); border:1.5px solid #cfe4f0;
+}
+.auth-toggle{text-align:center; margin-top:18px; font-size:0.9rem; color:var(--ink-soft);}
+.auth-error{background:var(--danger-pale); color:var(--danger); padding:10px 14px; border-radius:10px; font-size:0.88rem; margin-bottom:14px;}
+.auth-note{margin-top:20px; font-size:0.78rem; color:#8ba3b5; text-align:center; line-height:1.5;}
+.welcome-back{padding:6px 0 18px;}
+.welcome-back .who{font-size:1.15rem; font-weight:600; color:var(--sky-deep); margin-bottom:18px;}
+
+/* ---------- APP HEADER ---------- */
+.app-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 28px; position:relative; z-index:2;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand svg{width:30px; height:30px;}
+.brand span{font-family:'Fraunces', serif; font-weight:600; font-size:1.3rem; color:var(--sky-deep);}
+.header-right{display:flex; align-items:center; gap:14px;}
+.streak-pill{
+  display:flex; align-items:center; gap:6px; background:#fff; padding:7px 14px; border-radius:999px;
+  box-shadow:var(--card-shadow); font-weight:600; color:var(--sky-navy); font-size:0.9rem;
+}
+.user-chip{
+  display:flex; align-items:center; gap:8px; background:#fff; padding:6px 8px 6px 14px; border-radius:999px;
+  box-shadow:var(--card-shadow); font-weight:600; color:var(--sky-deep); font-size:0.9rem;
+}
+.avatar-dot{width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--sky-bright),var(--sky-mid)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:0.85rem;}
+.icon-btn{
+  background:#fff; border:none; width:36px; height:36px; border-radius:50%; box-shadow:var(--card-shadow);
+  display:flex; align-items:center; justify-content:center; color:var(--sky-navy);
+}
+
+/* ---------- NAV ---------- */
+.tab-nav{
+  display:flex; gap:6px; padding:0 28px; margin-bottom:6px; position:relative; z-index:2;
+}
+.tab-btn{
+  background:transparent; border:none; padding:10px 18px; border-radius:12px 12px 0 0;
+  font-weight:600; color:var(--ink-soft); font-size:0.95rem; position:relative;
+}
+.tab-btn.active{color:var(--sky-deep); background:rgba(255,255,255,0.6);}
+.tab-btn.active::after{
+  content:''; position:absolute; bottom:-1px; left:14px; right:14px; height:3px; border-radius:3px;
+  background:var(--sun);
+}
+
+main{flex:1; padding:10px 28px 60px; position:relative; z-index:1; max-width:1000px; margin:0 auto; width:100%;}
+
+/* ---------- HOME ---------- */
+.greeting-row{display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px; margin:14px 0 22px;}
+.greeting-row h2{font-size:1.9rem; color:var(--sky-deep);}
+.greeting-row p{color:var(--ink-soft); margin-top:4px;}
+
+.sky-panel{
+  background:linear-gradient(180deg, #cdeaf9 0%, #eef8fd 100%);
+  border-radius:24px; padding:26px 26px 14px; box-shadow:var(--card-shadow); margin-bottom:26px;
+  position:relative; overflow:hidden;
+}
+.sky-panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+.sky-panel-head h3{color:var(--sky-deep); font-size:1.1rem;}
+.sky-panel-head .pct{font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--sky-navy);}
+.arc-wrap{width:100%; overflow:visible;}
+.topic-dot{cursor:pointer;}
+.topic-dot-label{font-size:9px; fill:var(--sky-navy); font-family:'Figtree', sans-serif; font-weight:600;}
+
+.cards-row{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px;}
+@media (max-width:760px){.cards-row{grid-template-columns:1fr 1fr;}}
+@media (max-width:480px){.cards-row{grid-template-columns:1fr;}}
+.stat-card{background:#fff; border-radius:18px; padding:18px 20px; box-shadow:var(--card-shadow);}
+.stat-card .label{font-size:0.78rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; font-weight:600;}
+.stat-card .value{font-family:'IBM Plex Mono', monospace; font-size:1.7rem; color:var(--sky-deep); margin-top:4px; font-weight:600;}
+.stat-card .sub{font-size:0.82rem; color:var(--ink-soft); margin-top:4px;}
+.progress-track{height:8px; background:#eaf2f7; border-radius:8px; margin-top:10px; overflow:hidden;}
+.progress-fill{height:100%; background:linear-gradient(90deg, var(--sky-mid), var(--sky-bright)); border-radius:8px; transition:width 0.4s ease;}
+
+.continue-card{
+  display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  background:linear-gradient(120deg, var(--sky-deep), var(--sky-navy)); color:#fff; border-radius:22px; padding:24px 28px;
+  box-shadow:0 14px 30px -12px rgba(23,49,71,0.5); margin-bottom:10px;
+}
+.continue-card h3{color:#fff; font-size:1.3rem;}
+.continue-card p{color:#c9dcea; margin-top:6px; font-size:0.92rem;}
+.continue-card .btn-primary{width:auto; padding:12px 26px;}
+
+/* ---------- TOPICS GRID ---------- */
+.topics-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px;}
+@media (max-width:760px){.topics-grid{grid-template-columns:1fr 1fr;}}
+@media (max-width:480px){.topics-grid{grid-template-columns:1fr;}}
+.topic-card{
+  background:#fff; border-radius:20px; padding:20px; box-shadow:var(--card-shadow); position:relative;
+  border:2px solid transparent; transition:transform 0.15s ease, border-color 0.15s ease;
+}
+.topic-card:hover{transform:translateY(-3px); border-color:var(--sky-bright);}
+.topic-card .icon{font-size:1.9rem;}
+.topic-card h4{margin-top:10px; font-size:1.05rem; color:var(--sky-deep);}
+.topic-card .sub{font-size:0.82rem; color:var(--ink-soft); margin-top:2px; min-height:32px;}
+.topic-card .badge{
+  position:absolute; top:16px; right:16px; font-size:0.7rem; font-weight:700; padding:4px 9px; border-radius:999px;
+}
+.badge.done{background:var(--success-pale); color:var(--success);}
+.badge.todo{background:var(--sky-pale); color:var(--sky-mid);}
+.topic-card .cta{margin-top:14px; font-size:0.85rem; font-weight:700; color:var(--sky-navy); display:flex; align-items:center; gap:4px;}
+
+/* ---------- LESSON VIEW ---------- */
+.lesson-header{display:flex; align-items:center; gap:14px; margin-bottom:20px;}
+.back-btn{background:#fff; border:none; padding:8px 14px; border-radius:12px; box-shadow:var(--card-shadow); font-weight:600; color:var(--sky-navy); font-size:0.88rem; display:flex; align-items:center; gap:6px;}
+.lesson-header h2{color:var(--sky-deep); font-size:1.5rem;}
+
+.word-list{display:flex; flex-direction:column; gap:12px; margin-bottom:26px;}
+.word-card{
+  background:#fff; border-radius:18px; padding:18px 20px; box-shadow:var(--card-shadow);
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.speak-btn{
+  flex-shrink:0; width:46px; height:46px; border-radius:50%; border:none; background:var(--sky-pale);
+  color:var(--sky-navy); display:flex; align-items:center; justify-content:center; transition:background 0.15s;
+}
+.speak-btn:hover{background:var(--sky-bright); color:#fff;}
+.speak-btn:active{transform:scale(0.92);}
+.word-main{flex:1; min-width:180px;}
+.word-de{font-family:'Fraunces', serif; font-weight:600; font-size:1.2rem; color:var(--sky-deep);}
+.word-phon{font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--sky-mid); margin-top:2px;}
+.word-en{font-size:0.92rem; color:var(--ink-soft); margin-top:4px;}
+.word-example{
+  flex-basis:100%; margin-top:8px; padding-top:10px; border-top:1px dashed #e2edf3;
+  display:flex; align-items:center; gap:10px; font-size:0.88rem; color:var(--ink-soft);
+}
+.word-example .ex-de{color:var(--sky-navy); font-style:italic;}
+.mini-speak{width:30px; height:30px; border-radius:50%; border:none; background:#f4fafd; color:var(--sky-mid); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+
+.quiz-cta{
+  background:linear-gradient(120deg, var(--sun), #ffcf82); border-radius:20px; padding:22px 26px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  box-shadow:0 12px 26px -10px rgba(255,184,77,0.55);
+}
+.quiz-cta h3{color:#5a3300;}
+.quiz-cta p{color:#7a5218; font-size:0.9rem; margin-top:4px;}
+.quiz-cta .btn{background:#5a3300; color:#fff; width:auto; padding:12px 24px;}
+
+/* ---------- QUIZ MODAL ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(23,49,71,0.45); z-index:50; display:flex; align-items:center; justify-content:center;
+  padding:20px; backdrop-filter:blur(2px);
+}
+.modal-card{
+  background:#fff; border-radius:24px; padding:32px; max-width:480px; width:100%; box-shadow:0 30px 60px -20px rgba(0,0,0,0.35);
+  max-height:88vh; overflow-y:auto;
+}
+.quiz-progress{display:flex; gap:6px; margin-bottom:20px;}
+.quiz-progress span{flex:1; height:5px; background:#eaf2f7; border-radius:4px;}
+.quiz-progress span.filled{background:var(--sky-mid);}
+.quiz-question{font-size:1.15rem; font-weight:600; color:var(--sky-deep); margin-bottom:18px; font-family:'Fraunces', serif;}
+.quiz-options{display:flex; flex-direction:column; gap:10px;}
+.quiz-option{
+  text-align:left; padding:14px 16px; border-radius:14px; border:1.5px solid #dcedf5; background:#fbfeff;
+  font-size:1rem; color:var(--ink); font-weight:500; transition:all 0.12s;
+}
+.quiz-option:hover{border-color:var(--sky-mid);}
+.quiz-option.correct{background:var(--success-pale); border-color:var(--success); color:var(--success);}
+.quiz-option.wrong{background:var(--danger-pale); border-color:var(--danger); color:var(--danger);}
+.quiz-option:disabled{cursor:default;}
+.quiz-result{text-align:center;}
+.quiz-result .big-score{font-family:'Fraunces', serif; font-size:3rem; color:var(--sky-deep); margin:14px 0;}
+.quiz-result p{color:var(--ink-soft); margin-bottom:22px;}
+.modal-close-x{position:absolute; top:18px; right:20px; background:none; border:none; font-size:1.3rem; color:var(--ink-soft);}
+
+/* ---------- ACCOUNT ---------- */
+.account-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:20px;}
+@media (max-width:760px){.account-grid{grid-template-columns:1fr;}}
+.account-card{background:#fff; border-radius:20px; padding:24px; box-shadow:var(--card-shadow);}
+.profile-block{display:flex; align-items:center; gap:16px; margin-bottom:18px;}
+.profile-avatar{width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--sky-bright),var(--sky-mid)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.4rem; font-weight:700;}
+.profile-block h3{color:var(--sky-deep); font-size:1.25rem;}
+.profile-block p{color:var(--ink-soft); font-size:0.85rem; margin-top:2px;}
+.target-row{display:flex; align-items:center; gap:10px; margin-top:14px;}
+.target-row input{width:70px; padding:9px 10px; border-radius:10px; border:1.5px solid #cfe4f0; font-family:'IBM Plex Mono', monospace; font-size:1rem;}
+.completed-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+.completed-list li{display:flex; align-items:center; justify-content:between; gap:10px; padding:10px 12px; background:var(--success-pale); border-radius:12px; font-size:0.9rem; color:var(--success); font-weight:600;}
+.completed-list li span.sc{margin-left:auto; font-family:'IBM Plex Mono', monospace; font-weight:600;}
+.empty-note{color:var(--ink-soft); font-size:0.88rem; font-style:italic;}
+.section-title{font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--sky-mid); font-weight:700; margin-bottom:12px;}
+
+.toast{
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%); background:var(--sky-deep); color:#fff;
+  padding:12px 22px; border-radius:14px; font-size:0.9rem; font-weight:600; box-shadow:0 10px 24px rgba(0,0,0,0.25);
+  z-index:100; opacity:0; pointer-events:none; transition:opacity 0.25s, transform 0.25s;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="bg-clouds">
+  <div class="bg-cloud c1"><svg viewBox="0 0 200 100" fill="white"><ellipse cx="60" cy="60" rx="50" ry="30"/><ellipse cx="110" cy="45" rx="40" ry="28"/><ellipse cx="150" cy="60" rx="35" ry="24"/></svg></div>
+  <div class="bg-cloud c2"><svg viewBox="0 0 200 100" fill="white"><ellipse cx="60" cy="60" rx="50" ry="30"/><ellipse cx="110" cy="45" rx="40" ry="28"/><ellipse cx="150" cy="60" rx="35" ry="24"/></svg></div>
+  <div class="bg-cloud c3"><svg viewBox="0 0 200 100" fill="white"><ellipse cx="60" cy="60" rx="50" ry="30"/><ellipse cx="110" cy="45" rx="40" ry="28"/><ellipse cx="150" cy="60" rx="35" ry="24"/></svg></div>
+  <div class="bg-cloud c4"><svg viewBox="0 0 200 100" fill="white"><ellipse cx="60" cy="60" rx="50" ry="30"/><ellipse cx="110" cy="45" rx="40" ry="28"/><ellipse cx="150" cy="60" rx="35" ry="24"/></svg></div>
+</div>
+
+<div class="app-shell">
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen">
+    <div class="auth-card" id="authCard"></div>
+  </div>
+
+  <!-- APP SCREEN -->
+  <div id="appScreen" class="hidden">
+    <header class="app-header">
+      <div class="brand">
+        <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="16" fill="#ffb84d"/><g stroke="#ffb84d" stroke-width="3" stroke-linecap="round"><line x1="30" y1="2" x2="30" y2="10"/><line x1="30" y1="50" x2="30" y2="58"/><line x1="2" y1="30" x2="10" y2="30"/><line x1="50" y1="30" x2="58" y2="30"/></g></svg>
+        <span>Wolke</span>
+      </div>
+      <div class="header-right">
+        <div class="streak-pill" id="streakPill">🔥 0 day streak</div>
+        <div class="user-chip" id="userChip"></div>
+        <button class="icon-btn" id="logoutBtn" title="Log out">⏻</button>
+      </div>
+    </header>
+
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="home">Home</button>
+      <button class="tab-btn" data-tab="topics">Topics</button>
+      <button class="tab-btn" data-tab="account">Account</button>
+    </nav>
+
+    <main id="mainView"></main>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   DATA
+========================================================= */
+const TOPICS = [
+  { id:'greetings', icon:'🙋', title:'Begrüßungen', subtitle:'Greetings & Introductions', words:[
+    {de:'Hallo', phon:'HAH-loh', en:'Hello', ex_de:"Hallo, wie geht's?", ex_en:'Hello, how is it going?'},
+    {de:'Guten Morgen', phon:'GOO-ten MOR-gen', en:'Good morning', ex_de:'Guten Morgen! Hast du gut geschlafen?', ex_en:'Good morning! Did you sleep well?'},
+    {de:'Guten Tag', phon:'GOO-ten TAHK', en:'Good day', ex_de:'Guten Tag, Frau Schmidt.', ex_en:'Good day, Mrs. Schmidt.'},
+    {de:'Guten Abend', phon:'GOO-ten AH-bent', en:'Good evening', ex_de:'Guten Abend, wie war dein Tag?', ex_en:'Good evening, how was your day?'},
+    {de:'Auf Wiedersehen', phon:'owf VEE-der-zayn', en:'Goodbye (formal)', ex_de:'Auf Wiedersehen, bis morgen.', ex_en:'Goodbye, see you tomorrow.'},
+    {de:'Tschüss', phon:'chewss', en:'Bye (informal)', ex_de:"Tschüss, mach's gut!", ex_en:'Bye, take care!'},
+    {de:'Wie heißt du?', phon:'vee hyste doo', en:"What's your name?", ex_de:'Wie heißt du? Ich heiße Anna.', ex_en:"What's your name? My name is Anna."},
+    {de:'Ich heiße...', phon:'ikh HY-suh', en:'My name is...', ex_de:'Ich heiße Max.', ex_en:'My name is Max.'},
+    {de:'Freut mich', phon:'froyt mikh', en:'Nice to meet you', ex_de:'Freut mich, dich kennenzulernen.', ex_en:'Nice to meet you.'},
+    {de:'Danke', phon:'DAHN-kuh', en:'Thank you', ex_de:'Danke für deine Hilfe.', ex_en:'Thanks for your help.'},
+  ]},
+  { id:'alphabet', icon:'🔤', title:'Aussprache', subtitle:'Alphabet & Pronunciation', quizType:'sound', words:[
+    {de:'ä', phon:"like 'e' in bed", en:'the ä sound', ex_de:'Mädchen', ex_en:'girl'},
+    {de:'ö', phon:"round lips + 'e'", en:'the ö sound', ex_de:'schön', ex_en:'beautiful'},
+    {de:'ü', phon:"round lips + 'ee'", en:'the ü sound', ex_de:'über', ex_en:'over / above'},
+    {de:'ß', phon:'sharp "ss"', en:'the ß (Eszett)', ex_de:'Straße', ex_en:'street'},
+    {de:'ch (ich-Laut)', phon:'soft "hy" sound', en:'ch after i / e', ex_de:'ich', ex_en:'I'},
+    {de:'ch (ach-Laut)', phon:'throaty "kh" sound', en:'ch after a / o / u', ex_de:'Buch', ex_en:'book'},
+    {de:'sch', phon:'like English "sh"', en:'the sch sound', ex_de:'Schule', ex_en:'school'},
+    {de:'w', phon:'like English "v"', en:'the w sound', ex_de:'Wasser', ex_en:'water'},
+    {de:'v', phon:'like English "f"', en:'the v sound', ex_de:'Vater', ex_en:'father'},
+    {de:'z', phon:'like "ts"', en:'the z sound', ex_de:'Zeit', ex_en:'time'},
+  ]},
+  { id:'numbers', icon:'🔢', title:'Zahlen', subtitle:'Numbers 0–20', words:[
+    {de:'null', phon:'nool', en:'zero', ex_de:'Die Uhrzeit ist null Uhr.', ex_en:'The time is zero o\'clock.'},
+    {de:'eins', phon:'eyns', en:'one', ex_de:'Ich habe eine Schwester.', ex_en:'I have one sister.'},
+    {de:'zwei', phon:'tsvy', en:'two', ex_de:'Ich habe zwei Katzen.', ex_en:'I have two cats.'},
+    {de:'drei', phon:'dry', en:'three', ex_de:'Das Baby ist drei Monate alt.', ex_en:'The baby is three months old.'},
+    {de:'vier', phon:'feer', en:'four', ex_de:'Der Tisch hat vier Beine.', ex_en:'The table has four legs.'},
+    {de:'fünf', phon:'fewnf', en:'five', ex_de:'Ich stehe um fünf Uhr auf.', ex_en:'I get up at five o\'clock.'},
+    {de:'sechs', phon:'zeks', en:'six', ex_de:'Die Schule beginnt um sechs Uhr.', ex_en:'School starts at six o\'clock.'},
+    {de:'sieben', phon:'ZEE-ben', en:'seven', ex_de:'Eine Woche hat sieben Tage.', ex_en:'A week has seven days.'},
+    {de:'zehn', phon:'tsayn', en:'ten', ex_de:'Ich zähle bis zehn.', ex_en:'I count to ten.'},
+    {de:'zwanzig', phon:'TSVAHN-tsikh', en:'twenty', ex_de:'Sie ist zwanzig Jahre alt.', ex_en:'She is twenty years old.'},
+  ]},
+  { id:'colors', icon:'🎨', title:'Farben', subtitle:'Colors', words:[
+    {de:'rot', phon:'roht', en:'red', ex_de:'Die Rose ist rot.', ex_en:'The rose is red.'},
+    {de:'blau', phon:'blow', en:'blue', ex_de:'Der Himmel ist blau.', ex_en:'The sky is blue.'},
+    {de:'grün', phon:'grewn', en:'green', ex_de:'Das Gras ist grün.', ex_en:'The grass is green.'},
+    {de:'gelb', phon:'gelp', en:'yellow', ex_de:'Die Sonne ist gelb.', ex_en:'The sun is yellow.'},
+    {de:'schwarz', phon:'shvarts', en:'black', ex_de:'Die Katze ist schwarz.', ex_en:'The cat is black.'},
+    {de:'weiß', phon:'vyce', en:'white', ex_de:'Der Schnee ist weiß.', ex_en:'The snow is white.'},
+    {de:'orange', phon:'oh-RAHNZH-uh', en:'orange', ex_de:'Die Orange ist orange.', ex_en:'The orange is orange.'},
+    {de:'lila', phon:'LEE-lah', en:'purple', ex_de:'Die Blume ist lila.', ex_en:'The flower is purple.'},
+    {de:'rosa', phon:'ROH-zah', en:'pink', ex_de:'Das Kleid ist rosa.', ex_en:'The dress is pink.'},
+    {de:'braun', phon:'brown', en:'brown', ex_de:'Der Bär ist braun.', ex_en:'The bear is brown.'},
+  ]},
+  { id:'family', icon:'👪', title:'Familie', subtitle:'Family', words:[
+    {de:'die Mutter', phon:'dee MOO-ter', en:'mother', ex_de:'Meine Mutter kocht gern.', ex_en:'My mother likes to cook.'},
+    {de:'der Vater', phon:'dair FAH-ter', en:'father', ex_de:'Mein Vater arbeitet viel.', ex_en:'My father works a lot.'},
+    {de:'die Schwester', phon:'dee SHVES-ter', en:'sister', ex_de:'Ich habe eine Schwester.', ex_en:'I have one sister.'},
+    {de:'der Bruder', phon:'dair BROO-der', en:'brother', ex_de:'Mein Bruder ist älter.', ex_en:'My brother is older.'},
+    {de:'die Großmutter', phon:'dee GROHS-moo-ter', en:'grandmother', ex_de:'Meine Großmutter erzählt Geschichten.', ex_en:'My grandmother tells stories.'},
+    {de:'der Großvater', phon:'dair GROHS-fah-ter', en:'grandfather', ex_de:'Mein Großvater gärtnert gern.', ex_en:'My grandfather likes gardening.'},
+    {de:'die Tochter', phon:'dee TOKH-ter', en:'daughter', ex_de:'Die Tochter ist fünf Jahre alt.', ex_en:'The daughter is five years old.'},
+    {de:'der Sohn', phon:'dair zohn', en:'son', ex_de:'Der Sohn spielt Fußball.', ex_en:'The son plays soccer.'},
+    {de:'die Eltern', phon:'dee EL-tern', en:'parents', ex_de:'Meine Eltern wohnen in Berlin.', ex_en:'My parents live in Berlin.'},
+    {de:'die Geschwister', phon:'dee guh-SHVIS-ter', en:'siblings', ex_de:'Wie viele Geschwister hast du?', ex_en:'How many siblings do you have?'},
+  ]},
+  { id:'calendar', icon:'📅', title:'Tage & Jahreszeiten', subtitle:'Days & Seasons', words:[
+    {de:'Montag', phon:'MOHN-tahk', en:'Monday', ex_de:'Am Montag arbeite ich.', ex_en:'On Monday I work.'},
+    {de:'Dienstag', phon:'DEENS-tahk', en:'Tuesday', ex_de:'Dienstag ist mein freier Tag.', ex_en:'Tuesday is my day off.'},
+    {de:'Mittwoch', phon:'MIT-vokh', en:'Wednesday', ex_de:'Mittwoch treffen wir uns.', ex_en:'We meet on Wednesday.'},
+    {de:'Donnerstag', phon:'DON-ers-tahk', en:'Thursday', ex_de:'Donnerstag gehe ich einkaufen.', ex_en:'I go shopping on Thursday.'},
+    {de:'Freitag', phon:'FRY-tahk', en:'Friday', ex_de:'Freitag ist mein Lieblingstag.', ex_en:'Friday is my favorite day.'},
+    {de:'Samstag', phon:'ZAHMS-tahk', en:'Saturday', ex_de:'Am Samstag schlafe ich lange.', ex_en:'On Saturday I sleep in.'},
+    {de:'Sonntag', phon:'ZON-tahk', en:'Sunday', ex_de:'Sonntag ist Familientag.', ex_en:'Sunday is family day.'},
+    {de:'der Frühling', phon:'dair FREW-ling', en:'spring', ex_de:'Im Frühling blühen die Blumen.', ex_en:'In spring, the flowers bloom.'},
+    {de:'der Sommer', phon:'dair ZOM-mer', en:'summer', ex_de:'Der Sommer ist warm.', ex_en:'Summer is warm.'},
+    {de:'der Winter', phon:'dair VIN-ter', en:'winter', ex_de:'Im Winter schneit es.', ex_en:'In winter it snows.'},
+  ]},
+  { id:'food', icon:'🍽️', title:'Essen & Trinken', subtitle:'Food & Drink', words:[
+    {de:'das Brot', phon:'dahs broht', en:'bread', ex_de:'Ich esse Brot zum Frühstück.', ex_en:'I eat bread for breakfast.'},
+    {de:'der Käse', phon:'dair KAY-zuh', en:'cheese', ex_de:'Der Käse schmeckt gut.', ex_en:'The cheese tastes good.'},
+    {de:'das Wasser', phon:'dahs VAH-ser', en:'water', ex_de:'Ich trinke viel Wasser.', ex_en:'I drink a lot of water.'},
+    {de:'der Kaffee', phon:'dair kah-FAY', en:'coffee', ex_de:'Ich trinke Kaffee am Morgen.', ex_en:'I drink coffee in the morning.'},
+    {de:'der Apfel', phon:'dair AHP-fel', en:'apple', ex_de:'Der Apfel ist rot.', ex_en:'The apple is red.'},
+    {de:'die Milch', phon:'dee milkh', en:'milk', ex_de:'Das Kind trinkt Milch.', ex_en:'The child drinks milk.'},
+    {de:'das Ei', phon:'dahs eye', en:'egg', ex_de:'Ich esse ein Ei zum Frühstück.', ex_en:'I eat an egg for breakfast.'},
+    {de:'der Reis', phon:'dair rice', en:'rice', ex_de:'Wir essen Reis zum Abendessen.', ex_en:'We eat rice for dinner.'},
+    {de:'das Gemüse', phon:'dahs guh-MEW-zuh', en:'vegetables', ex_de:'Gemüse ist gesund.', ex_en:'Vegetables are healthy.'},
+    {de:'der Wein', phon:'dair vine', en:'wine', ex_de:'Er trinkt ein Glas Wein.', ex_en:'He drinks a glass of wine.'},
+  ]},
+  { id:'verbs', icon:'📖', title:'Sein & Haben', subtitle:'To Be & To Have', words:[
+    {de:'ich bin', phon:'ikh bin', en:'I am', ex_de:'Ich bin müde.', ex_en:'I am tired.'},
+    {de:'du bist', phon:'doo bist', en:'you are', ex_de:'Du bist nett.', ex_en:'You are nice.'},
+    {de:'er/sie/es ist', phon:'air/zee/es ist', en:'he/she/it is', ex_de:'Sie ist Lehrerin.', ex_en:'She is a teacher.'},
+    {de:'wir sind', phon:'veer zint', en:'we are', ex_de:'Wir sind Freunde.', ex_en:'We are friends.'},
+    {de:'ihr seid', phon:'eer zyt', en:'you all are', ex_de:'Ihr seid pünktlich.', ex_en:'You all are punctual.'},
+    {de:'sie/Sie sind', phon:'zee zint', en:'they / you(formal) are', ex_de:'Sie sind sehr freundlich.', ex_en:'They are very friendly.'},
+    {de:'ich habe', phon:'ikh HAH-buh', en:'I have', ex_de:'Ich habe einen Hund.', ex_en:'I have a dog.'},
+    {de:'du hast', phon:'doo hahst', en:'you have', ex_de:'Du hast eine gute Idee.', ex_en:'You have a good idea.'},
+    {de:'er/sie/es hat', phon:'air/zee/es haht', en:'he/she/it has', ex_de:'Er hat viel Zeit.', ex_en:'He has a lot of time.'},
+    {de:'wir haben', phon:'veer HAH-ben', en:'we have', ex_de:'Wir haben Hunger.', ex_en:'We are hungry.'},
+  ]},
+  { id:'questions', icon:'❓', title:'Fragewörter', subtitle:'Question Words', words:[
+    {de:'Wer?', phon:'vair', en:'Who?', ex_de:'Wer bist du?', ex_en:'Who are you?'},
+    {de:'Was?', phon:'vahs', en:'What?', ex_de:'Was machst du?', ex_en:'What are you doing?'},
+    {de:'Wo?', phon:'voh', en:'Where?', ex_de:'Wo wohnst du?', ex_en:'Where do you live?'},
+    {de:'Wann?', phon:'vahn', en:'When?', ex_de:'Wann kommst du?', ex_en:'When are you coming?'},
+    {de:'Warum?', phon:'vah-ROOM', en:'Why?', ex_de:'Warum lernst du Deutsch?', ex_en:'Why are you learning German?'},
+    {de:'Wie?', phon:'vee', en:'How?', ex_de:'Wie geht es dir?', ex_en:'How are you?'},
+    {de:'Welche(r/s)?', phon:'VEL-khe(r)', en:'Which?', ex_de:'Welches Buch liest du?', ex_en:'Which book are you reading?'},
+    {de:'Wie viel?', phon:'vee feel', en:'How much?', ex_de:'Wie viel kostet das?', ex_en:'How much does that cost?'},
+    {de:'Wie viele?', phon:'vee FEE-luh', en:'How many?', ex_de:'Wie viele Geschwister hast du?', ex_en:'How many siblings do you have?'},
+    {de:'Woher?', phon:'voh-HAIR', en:'Where from?', ex_de:'Woher kommst du?', ex_en:'Where are you from?'},
+  ]},
+  { id:'time', icon:'⏰', title:'Uhrzeit & Alltag', subtitle:'Time & Daily Routine', words:[
+    {de:'Wie spät ist es?', phon:'vee shpayt ist es', en:'What time is it?', ex_de:'Entschuldigung, wie spät ist es?', ex_en:'Excuse me, what time is it?'},
+    {de:'es ist ... Uhr', phon:'es ist ... oor', en:"it is ... o'clock", ex_de:'Es ist acht Uhr.', ex_en:"It is eight o'clock."},
+    {de:'aufstehen', phon:'OWF-shtay-en', en:'to get up', ex_de:'Ich stehe um sieben Uhr auf.', ex_en:"I get up at seven o'clock."},
+    {de:'frühstücken', phon:'FREW-shtew-ken', en:'to have breakfast', ex_de:'Wir frühstücken zusammen.', ex_en:'We have breakfast together.'},
+    {de:'zur Arbeit gehen', phon:'tsoor AR-bite gay-en', en:'to go to work', ex_de:'Er geht um acht zur Arbeit.', ex_en:'He goes to work at eight.'},
+    {de:'zu Mittag essen', phon:'tsoo MIT-tahk ES-sen', en:'to have lunch', ex_de:'Wir essen um zwölf zu Mittag.', ex_en:'We have lunch at twelve.'},
+    {de:'nach Hause kommen', phon:'nahkh HOW-zuh KOM-men', en:'to come home', ex_de:'Ich komme um sechs nach Hause.', ex_en:'I come home at six.'},
+    {de:'zu Abend essen', phon:'tsoo AH-bent ES-sen', en:'to have dinner', ex_de:'Wir essen um sieben zu Abend.', ex_en:'We have dinner at seven.'},
+    {de:'schlafen gehen', phon:'SHLAH-fen GAY-en', en:'to go to sleep', ex_de:'Ich gehe um zehn schlafen.', ex_en:'I go to sleep at ten.'},
+    {de:'die Pause', phon:'dee POW-zuh', en:'the break', ex_de:'Wir machen eine Pause.', ex_en:'We take a break.'},
+  ]},
+  { id:'clothing', icon:'👕', title:'Kleidung & Einkaufen', subtitle:'Clothing & Shopping', words:[
+    {de:'die Hose', phon:'dee HOH-zuh', en:'pants', ex_de:'Die Hose ist blau.', ex_en:'The pants are blue.'},
+    {de:'das Hemd', phon:'dahs hemt', en:'shirt', ex_de:'Das Hemd ist neu.', ex_en:'The shirt is new.'},
+    {de:'der Rock', phon:'dair rock', en:'skirt', ex_de:'Der Rock ist kurz.', ex_en:'The skirt is short.'},
+    {de:'die Jacke', phon:'dee YAH-kuh', en:'jacket', ex_de:'Die Jacke ist warm.', ex_en:'The jacket is warm.'},
+    {de:'die Schuhe', phon:'dee SHOO-uh', en:'shoes', ex_de:'Die Schuhe sind bequem.', ex_en:'The shoes are comfortable.'},
+    {de:'das Kleid', phon:'dahs klite', en:'dress', ex_de:'Das Kleid ist schön.', ex_en:'The dress is beautiful.'},
+    {de:'Was kostet das?', phon:'vahs KOS-tet dahs', en:'How much does that cost?', ex_de:'Entschuldigung, was kostet das?', ex_en:'Excuse me, how much does that cost?'},
+    {de:'teuer', phon:'TOY-er', en:'expensive', ex_de:'Das Auto ist teuer.', ex_en:'The car is expensive.'},
+    {de:'billig', phon:'BIL-likh', en:'cheap', ex_de:'Der Rock ist billig.', ex_en:'The skirt is cheap.'},
+    {de:'Ich möchte...kaufen', phon:'ikh MERKH-tuh ... KOW-fen', en:'I would like to buy...', ex_de:'Ich möchte ein Kleid kaufen.', ex_en:'I would like to buy a dress.'},
+  ]},
+  { id:'weather', icon:'☀️', title:'Wetter', subtitle:'Weather', words:[
+    {de:'die Sonne', phon:'dee ZON-nuh', en:'the sun', ex_de:'Die Sonne scheint.', ex_en:'The sun is shining.'},
+    {de:'der Regen', phon:'dair RAY-gen', en:'the rain', ex_de:'Der Regen fällt.', ex_en:'The rain is falling.'},
+    {de:'der Schnee', phon:'dair shnay', en:'the snow', ex_de:'Der Schnee ist weiß.', ex_en:'The snow is white.'},
+    {de:'der Wind', phon:'dair vint', en:'the wind', ex_de:'Der Wind ist stark.', ex_en:'The wind is strong.'},
+    {de:'die Wolke', phon:'dee VOL-kuh', en:'the cloud', ex_de:'Die Wolke ist grau.', ex_en:'The cloud is gray.'},
+    {de:'Es ist warm.', phon:'es ist varm', en:"It's warm.", ex_de:'Heute ist es warm.', ex_en:"Today it's warm."},
+    {de:'Es ist kalt.', phon:'es ist kahlt', en:"It's cold.", ex_de:'Im Winter ist es kalt.', ex_en:"In winter it's cold."},
+    {de:'Es regnet.', phon:'es RAYG-net', en:"It's raining.", ex_de:'Es regnet den ganzen Tag.', ex_en:"It's raining all day."},
+    {de:'Es schneit.', phon:'es shnyte', en:"It's snowing.", ex_de:'Es schneit im Dezember.', ex_en:'It snows in December.'},
+    {de:'das Gewitter', phon:'dahs guh-VIT-ter', en:'thunderstorm', ex_de:'Das Gewitter ist laut.', ex_en:'The thunderstorm is loud.'},
+  ]},
+];
+
+/* =========================================================
+   STORAGE HELPERS  (shared=true for accounts so this works
+   across devices/visitors of this app; shared=false for the
+   private "who was I last logged in as" pointer on this device)
+========================================================= */
+async function getAccount(username){
+   const data = localStorage.getItem(
+        'account:' + username.toLowerCase()
+    );
+    return data ? JSON.parse(data) : null;
+}
+async function saveAccount(username, data){
+ localStorage.setItem(
+        'account:' + username.toLowerCase(),
+        JSON.stringify(data)
+    );
+    return true;
+}
+async function setLastUser(username){
+   localStorage.setItem(
+        'session:lastUser',
+        username
+    );
+}
+async function getLastUser(){
+ return localStorage.getItem('session:lastUser');
+}
+async function clearLastUser(){
+   localStorage.removeItem('session:lastUser');
+}
+
+/* =========================================================
+   STATE
+========================================================= */
+let currentUser = null;   // username string
+let currentAccount = null; // {password, progress:{...}, createdAt}
+let currentTab = 'home';
+let openTopicId = null;
+let activeQuiz = null; // {topic, questions, index, score}
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function freshProgress(){
+  return {
+    completed: {},          // topicId -> {score, completedAt}
+    completionLog: [],      // ISO timestamps
+    weeklyTarget: 3,
+    lastActiveDate: null,
+    streak: 0,
+  };
+}
+
+function touchActivity(progress){
+  const today = todayStr();
+  if (progress.lastActiveDate === today) return;
+  const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  if (progress.lastActiveDate === yesterday) progress.streak += 1;
+  else progress.streak = 1;
+  progress.lastActiveDate = today;
+}
+
+function weeklyCompletedCount(progress){
+  const weekAgo = Date.now() - 7*86400000;
+  return progress.completionLog.filter(t => new Date(t).getTime() >= weekAgo).length;
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   SPEECH
+========================================================= */
+function speak(text){
+  if (!('speechSynthesis' in window)){
+    showToast("This browser can't speak German aloud 😔");
+    return;
+  }
+  const clean = text.replace(/\.\.\.+/g,'').replace(/\(.*?\)/g,'');
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = 'de-DE';
+  u.rate = 0.88;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   AUTH RENDERING
+========================================================= */
+let authMode = 'login'; // 'login' | 'signup'
+let welcomeUser = null; // username offered as "continue as"
+
+async function initAuth(){
+  welcomeUser = await getLastUser();
+  renderAuth();
+}
+
+function renderAuth(){
+  const card = document.getElementById('authCard');
+  const brand = `
+    <div class="auth-brand">
+      <svg class="sun-icon" viewBox="0 0 60 60"><circle cx="30" cy="30" r="14" fill="#ffb84d"/><g stroke="#ffb84d" stroke-width="3" stroke-linecap="round"><line x1="30" y1="4" x2="30" y2="12"/><line x1="30" y1="48" x2="30" y2="56"/><line x1="4" y1="30" x2="12" y2="30"/><line x1="48" y1="30" x2="56" y2="30"/><line x1="12" y1="12" x2="17" y2="17"/><line x1="48" y1="12" x2="43" y2="17"/><line x1="12" y1="48" x2="17" y2="43"/><line x1="48" y1="48" x2="43" y2="43"/></g></svg>
+      <h1>Wolke</h1>
+    </div>`;
+
+  if (welcomeUser){
+    card.innerHTML = `
+      ${brand}
+      <p class="auth-sub">Your German A1 journey, one cloud at a time.</p>
+      <div class="welcome-back">
+        <div class="who">Welcome back, ${escapeHtml(welcomeUser)} 👋</div>
+        <div id="authErr"></div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="wbPassword" placeholder="Enter your password" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" id="wbContinueBtn">Continue learning</button>
+        <button class="btn btn-ghost" id="wbSwitchBtn" style="margin-top:8px;">Not you? Use another account</button>
+      </div>
+      <p class="auth-note">Progress is saved to Wolke's shared storage for this app link, so it can follow you back whenever you return.</p>
+    `;
+    document.getElementById('wbContinueBtn').onclick = () => attemptLogin(welcomeUser, document.getElementById('wbPassword').value);
+    document.getElementById('wbSwitchBtn').onclick = () => { welcomeUser = null; authMode='login'; renderAuth(); };
+    document.getElementById('wbPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('wbContinueBtn').click(); });
+    return;
+  }
+
+  const isLogin = authMode === 'login';
+  card.innerHTML = `
+    ${brand}
+    <p class="auth-sub">Learn German A1, topic by topic — with pronunciation for every word.</p>
+    <div id="authErr"></div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="authUsername" placeholder="e.g. akshaya" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="authPassword" placeholder="Choose a password" autocomplete="${isLogin?'current-password':'new-password'}">
+    </div>
+    <button class="btn btn-primary" id="authSubmitBtn">${isLogin ? 'Log in' : 'Create account'}</button>
+    <div class="auth-toggle">
+      ${isLogin ? "New here?" : "Already have an account?"}
+      <a href="#" id="authSwitch" style="color:var(--sky-navy); font-weight:700;">${isLogin ? 'Create an account' : 'Log in'}</a>
+    </div>
+    <p class="auth-note">🔒 This is a simple account system for tracking your personal progress in this app — not bank-grade security, so please don't reuse an important password.</p>
+  `;
+  document.getElementById('authSwitch').onclick = (e)=>{ e.preventDefault(); authMode = isLogin ? 'signup' : 'login'; renderAuth(); };
+  document.getElementById('authSubmitBtn').onclick = onAuthSubmit;
+  card.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') onAuthSubmit(); });
+  });
+}
+
+function authError(msg){
+  document.getElementById('authErr').innerHTML = `<div class="auth-error">${escapeHtml(msg)}</div>`;
+}
+
+async function onAuthSubmit(){
+  const username = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!username || username.length < 2){ authError('Please choose a username with at least 2 characters.'); return; }
+  if (!password || password.length < 4){ authError('Password should be at least 4 characters.'); return; }
+
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Please wait...';
+
+  const existing = await getAccount(username);
+  if (authMode === 'signup'){
+    if (existing){ authError('That username is already taken. Try logging in instead.'); btn.disabled=false; btn.textContent='Create account'; return; }
+    const account = { password, displayName: username, createdAt: new Date().toISOString(), progress: freshProgress() };
+    touchActivity(account.progress);
+    const ok = await saveAccount(username, account);
+    if (!ok){ authError('Could not create your account — please try again.'); btn.disabled=false; btn.textContent='Create account'; return; }
+    await logInSuccess(username, account);
+  } else {
+    if (!existing){ authError('No account found with that username. Want to create one?'); btn.disabled=false; btn.textContent='Log in'; return; }
+    if (existing.password !== password){ authError('Incorrect password. Please try again.'); btn.disabled=false; btn.textContent='Log in'; return; }
+    touchActivity(existing.progress);
+    await saveAccount(username, existing);
+    await logInSuccess(username, existing);
+  }
+}
+
+async function attemptLogin(username, password){
+  document.getElementById('authErr').innerHTML = '';
+  const account = await getAccount(username);
+  if (!account){ authError('Account not found. Please use another account.'); return; }
+  if (account.password !== password){ authError('Incorrect password.'); return; }
+  touchActivity(account.progress);
+  await saveAccount(username, account);
+  await logInSuccess(username, account);
+}
+
+async function logInSuccess(username, account){
+  currentUser = username;
+  currentAccount = account;
+  await setLastUser(username);
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  currentTab = 'home';
+  renderChrome();
+  renderMain();
+  showToast(`Welcome, ${username}! Let's learn some German. 🌤️`);
+}
+
+function logout(){
+  currentUser = null;
+  currentAccount = null;
+  clearLastUser();
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('authScreen').classList.remove('hidden');
+  welcomeUser = null;
+  authMode = 'login';
+  renderAuth();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* =========================================================
+   CHROME (header / nav)
+========================================================= */
+function renderChrome(){
+  document.getElementById('userChip').innerHTML = `
+    <div class="avatar-dot">${currentUser.slice(0,1).toUpperCase()}</div>
+    <span>${escapeHtml(currentUser)}</span>
+  `;
+  document.getElementById('streakPill').innerHTML = `🔥 ${currentAccount.progress.streak} day${currentAccount.progress.streak===1?'':'s'} streak`;
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.tab === currentTab);
+  });
+}
+
+document.getElementById('logoutBtn').onclick = logout;
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick = () => { currentTab = btn.dataset.tab; openTopicId = null; renderChrome(); renderMain(); };
+});
+
+/* =========================================================
+   MAIN VIEW ROUTER
+========================================================= */
+function renderMain(){
+  const main = document.getElementById('mainView');
+  if (openTopicId){ main.innerHTML = renderLesson(openTopicId); attachLessonHandlers(); return; }
+  if (currentTab === 'home') { main.innerHTML = renderHome(); attachHomeHandlers(); }
+  else if (currentTab === 'topics') { main.innerHTML = renderTopics(); attachTopicsHandlers(); }
+  else if (currentTab === 'account') { main.innerHTML = renderAccount(); attachAccountHandlers(); }
+}
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  const progress = currentAccount.progress;
+  const completedCount = Object.keys(progress.completed).length;
+  const totalTopics = TOPICS.length;
+  const pct = Math.round((completedCount/totalTopics)*100);
+  const weekCount = weeklyCompletedCount(progress);
+  const target = progress.weeklyTarget;
+  const weekPct = Math.min(100, Math.round((weekCount/target)*100));
+  const nextTopic = TOPICS.find(t => !progress.completed[t.id]) || TOPICS[0];
+
+  return `
+    <div class="greeting-row">
+      <div>
+        <h2>Guten Tag, ${escapeHtml(currentUser)} 👋</h2>
+        <p>Here's how your German sky is filling up.</p>
+      </div>
+    </div>
+
+    <div class="continue-card">
+      <div>
+        <h3>${nextTopic ? 'Continue: ' + nextTopic.title : "You've completed every topic!"}</h3>
+        <p>${nextTopic ? nextTopic.subtitle + ' · ' + nextTopic.words.length + ' words with audio' : 'Revisit any topic to keep your streak alive.'}</p>
+      </div>
+      <button class="btn btn-primary" id="continueBtn">${completedCount>0 ? 'Continue learning' : 'Start learning'} →</button>
+    </div>
+
+    <div class="sky-panel" style="margin-top:22px;">
+      <div class="sky-panel-head">
+        <h3>Your sky journey</h3>
+        <span class="pct mono">${pct}% complete</span>
+      </div>
+      <div id="arcContainer" class="arc-wrap"></div>
+    </div>
+
+    <div class="cards-row">
+      <div class="stat-card">
+        <div class="label">Topics completed</div>
+        <div class="value">${completedCount} / ${totalTopics}</div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">This week's target</div>
+        <div class="value">${weekCount} / ${target}</div>
+        <div class="progress-track"><div class="progress-fill" style="width:${weekPct}%"></div></div>
+        <div class="sub">Topics finished in the last 7 days</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Current streak</div>
+        <div class="value">🔥 ${progress.streak}</div>
+        <div class="sub">day${progress.streak===1?'':'s'} in a row — keep it going!</div>
+      </div>
+    </div>
+  `;
+}
+
+function attachHomeHandlers(){
+  const progress = currentAccount.progress;
+  const nextTopic = TOPICS.find(t => !progress.completed[t.id]) || TOPICS[0];
+  document.getElementById('continueBtn').onclick = () => { openTopicId = nextTopic.id; renderMain(); };
+  renderSunArc(document.getElementById('arcContainer'));
+}
+
+function renderSunArc(container){
+  const progress = currentAccount.progress;
+  const n = TOPICS.length;
+  const W = 640, H = 150;
+  const P0 = {x:30, y:120}, P1 = {x:W/2, y:-10}, P2 = {x:W-30, y:120};
+  function bezier(t){
+    const x = (1-t)*(1-t)*P0.x + 2*(1-t)*t*P1.x + t*t*P2.x;
+    const y = (1-t)*(1-t)*P0.y + 2*(1-t)*t*P1.y + t*t*P2.y;
+    return {x,y};
+  }
+  const completedCount = Object.keys(progress.completed).length;
+  const overallT = n<=1 ? 1 : Math.min(1, completedCount/n);
+  const sunPos = bezier(overallT);
+
+  let dots = '';
+  TOPICS.forEach((topic, i) => {
+    const t = n===1 ? 0.5 : i/(n-1);
+    const pos = bezier(t);
+    const done = !!progress.completed[topic.id];
+    dots += `
+      <g class="topic-dot" data-topic="${topic.id}" transform="translate(${pos.x},${pos.y+18})">
+        <circle r="13" fill="${done ? '#3f9d64' : '#ffffff'}" stroke="${done ? '#3f9d64' : '#8ecae6'}" stroke-width="2"/>
+        <text x="0" y="4" text-anchor="middle" font-size="13">${topic.icon}</text>
+      </g>
+    `;
+  });
+
+  const pathD = `M ${P0.x} ${P0.y} Q ${P1.x} ${P1.y} ${P2.x} ${P2.y}`;
+  container.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H+30}" width="100%" style="overflow:visible;">
+      <path d="${pathD}" fill="none" stroke="#bfe3f2" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+      <circle class="sun-marker" cx="${sunPos.x}" cy="${sunPos.y}" r="14" fill="#ffb84d"/>
+      <circle cx="${sunPos.x}" cy="${sunPos.y}" r="22" fill="#ffe1ac" opacity="0.5"/>
+      ${dots}
+    </svg>
+  `;
+  container.querySelectorAll('.topic-dot').forEach(el=>{
+    el.style.cursor='pointer';
+    el.addEventListener('click', ()=>{ openTopicId = el.dataset.topic; renderMain(); });
+  });
+}
+
+/* ---------- TOPICS GRID ---------- */
+function renderTopics(){
+  const progress = currentAccount.progress;
+  const cards = TOPICS.map(t => {
+    const done = progress.completed[t.id];
+    return `
+      <div class="topic-card" data-topic="${t.id}">
+        <span class="badge ${done?'done':'todo'}">${done ? '✓ Done · '+done.score+'/5' : 'To learn'}</span>
+        <div class="icon">${t.icon}</div>
+        <h4>${t.title}</h4>
+        <div class="sub">${t.subtitle}</div>
+        <div class="cta">${done ? 'Review again' : 'Start topic'} →</div>
+      </div>
+    `;
+  }).join('');
+  return `
+    <div class="greeting-row"><div><h2>All topics</h2><p>${TOPICS.length} A1 topics, each with vocabulary, example sentences and audio pronunciation.</p></div></div>
+    <div class="topics-grid">${cards}</div>
+  `;
+}
+function attachTopicsHandlers(){
+  document.querySelectorAll('.topic-card').forEach(card=>{
+    card.addEventListener('click', ()=>{ openTopicId = card.dataset.topic; renderMain(); });
+  });
+}
+
+
+function renderLesson(topicId){
+  const topic = TOPICS.find(t=>t.id===topicId);
+  const done = currentAccount.progress.completed[topicId];
+  const wordRows = topic.words.map((w, idx) => `
+    <div class="word-card">
+      <button class="speak-btn" data-speak="${escapeAttr(w.de)}" title="Hear pronunciation">🔊</button>
+      <div class="word-main">
+        <div class="word-de">${escapeHtml(w.de)}</div>
+        <div class="word-phon">${escapeHtml(w.phon)}</div>
+        <div class="word-en">${escapeHtml(w.en)}</div>
+      </div>
+      <div class="word-example">
+        <button class="mini-speak" data-speak="${escapeAttr(w.ex_de)}" title="Hear example">🔊</button>
+        <div><span class="ex-de">${escapeHtml(w.ex_de)}</span><br>${escapeHtml(w.ex_en)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="lesson-header">
+      <button class="back-btn" id="backBtn">← Back</button>
+      <div>
+        <h2>${topic.icon} ${topic.title}</h2>
+      </div>
+    </div>
+    <div class="word-list">${wordRows}</div>
+    <div class="quiz-cta">
+      <div>
+        <h3>${done ? 'Take the quiz again' : 'Ready for the quiz?'}</h3>
+        <p>${done ? `Your best score: ${done.score}/5` : '5 quick questions to lock in this topic.'}</p>
+      </div>
+      <button class="btn" id="startQuizBtn">${done ? 'Retake quiz' : 'Start quiz'}</button>
+    </div>
+  `;
+}
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
+
+function attachLessonHandlers(){
+  document.getElementById('backBtn').onclick = () => { openTopicId = null; renderMain(); };
+  document.querySelectorAll('[data-speak]').forEach(btn=>{
+    btn.addEventListener('click', ()=> speak(btn.dataset.speak));
+  });
+  document.getElementById('startQuizBtn').onclick = () => startQuiz(openTopicId);
+}
+
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function buildQuiz(topic){
+  const picks = shuffle(topic.words).slice(0,5);
+  return picks.map(w=>{
+    const askGerman = Math.random() < 0.5;
+    const correct = askGerman ? w.de : w.en;
+    let pool = topic.words.filter(x=>x!==w).map(x=> askGerman ? x.de : x.en);
+    pool = shuffle(pool).slice(0,3);
+    const options = shuffle([correct, ...pool]);
+    const prompt = topic.quizType === 'sound'
+      ? (askGerman ? `Which one is described as: "${w.en}"?` : `What does "${w.de}" describe?`)
+      : (askGerman ? `Which German word means "${w.en}"?` : `What does "${w.de}" mean?`);
+    return { prompt, options, correct, word:w };
+  });
+}
+
+function startQuiz(topicId){
+  const topic = TOPICS.find(t=>t.id===topicId);
+  activeQuiz = { topic, questions: buildQuiz(topic), index:0, score:0 };
+  renderQuizModal();
+}
+
+function renderQuizModal(){
+  let overlay = document.getElementById('quizOverlay');
+  if (!overlay){
+    overlay = document.createElement('div');
+    overlay.id = 'quizOverlay';
+    overlay.className = 'modal-overlay';
+    document.body.appendChild(overlay);
+  }
+  const q = activeQuiz;
+  if (q.index >= q.questions.length){
+    renderQuizResult(overlay);
+    return;
+  }
+  const question = q.questions[q.index];
+  const progressBars = q.questions.map((_,i)=>`<span class="${i<q.index?'filled':''}"></span>`).join('');
+  overlay.innerHTML = `
+    <div class="modal-card" style="position:relative;">
+      <button class="modal-close-x" id="quizCloseBtn">✕</button>
+      <div class="quiz-progress">${progressBars}</div>
+      <div class="quiz-question">${escapeHtml(question.prompt)}</div>
+      <div class="quiz-options">
+        ${question.options.map((opt,i)=>`<button class="quiz-option" data-idx="${i}">${escapeHtml(opt)}</button>`).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('quizCloseBtn').onclick = closeQuiz;
+  overlay.querySelectorAll('.quiz-option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const chosen = question.options[btn.dataset.idx];
+      overlay.querySelectorAll('.quiz-option').forEach(b=>b.disabled=true);
+      if (chosen === question.correct){
+        btn.classList.add('correct');
+        q.score += 1;
+      } else {
+        btn.classList.add('wrong');
+        overlay.querySelectorAll('.quiz-option').forEach(b=>{ if(b.textContent===question.correct) b.classList.add('correct'); });
+      }
+      setTimeout(()=>{ q.index += 1; renderQuizModal(); }, 900);
+    });
+  });
+}
+
+async function renderQuizResult(overlay){
+  const q = activeQuiz;
+  const passed = q.score >= 3;
+  overlay.innerHTML = `
+    <div class="modal-card quiz-result" style="position:relative;">
+      <button class="modal-close-x" id="quizCloseBtn">✕</button>
+      <div style="font-size:2.4rem;">${passed ? '🌤️' : '☁️'}</div>
+      <div class="big-score">${q.score}/${q.questions.length}</div>
+      <p>${passed ? `Nice work! You've got the hang of ${q.topic.title}.` : 'Close! A little more practice and you\'ll have it.'}</p>
+      <button class="btn btn-primary" id="quizDoneBtn">${passed ? 'Great, continue' : 'Back to lesson'}</button>
+      ${!passed ? `<button class="btn btn-secondary" style="margin-top:10px;" id="quizRetryBtn">Try again</button>` : ''}
+    </div>
+  `;
+  document.getElementById('quizCloseBtn').onclick = closeQuiz;
+  document.getElementById('quizDoneBtn').onclick = async ()=>{
+    if (passed) await recordCompletion(q.topic.id, q.score);
+    closeQuiz();
+    if (currentTab==='home' && !openTopicId){} // no-op
+    renderMain();
+  };
+  const retryBtn = document.getElementById('quizRetryBtn');
+  if (retryBtn) retryBtn.onclick = ()=>{ activeQuiz = { topic:q.topic, questions:buildQuiz(q.topic), index:0, score:0 }; renderQuizModal(); };
+
+  if (passed) await recordCompletion(q.topic.id, q.score);
+}
+
+async function recordCompletion(topicId, score){
+  const progress = currentAccount.progress;
+  const already = progress.completed[topicId];
+  if (!already || score > already.score){
+    progress.completed[topicId] = { score, completedAt: new Date().toISOString() };
+    progress.completionLog.push(new Date().toISOString());
+  }
+  touchActivity(progress);
+  await saveAccount(currentUser, currentAccount);
+  renderChrome();
+}
+
+function closeQuiz(){
+  const overlay = document.getElementById('quizOverlay');
+  if (overlay) overlay.remove();
+  activeQuiz = null;
+}
+
+
+function renderAccount(){
+  const progress = currentAccount.progress;
+  const completedIds = Object.keys(progress.completed);
+  const list = completedIds.length ? completedIds.map(id=>{
+    const t = TOPICS.find(x=>x.id===id);
+    const rec = progress.completed[id];
+    return `<li>${t.icon} ${t.title} <span class="sc">${rec.score}/5</span></li>`;
+  }).join('') : `<p class="empty-note">No topics completed yet — your first ✓ is waiting in the Topics tab.</p>`;
+
+  return `
+    <div class="greeting-row"><div><h2>Your account</h2><p>Progress, targets, and everything saved for next time.</p></div></div>
+    <div class="account-grid">
+      <div class="account-card">
+        <div class="profile-block">
+          <div class="profile-avatar">${currentUser.slice(0,1).toUpperCase()}</div>
+          <div>
+            <h3>${escapeHtml(currentUser)}</h3>
+            <p>Learning German · A1 level</p>
+          </div>
+        </div>
+        <div class="section-title">Weekly target</div>
+        <p style="color:var(--ink-soft); font-size:0.9rem; margin-bottom:4px;">How many topics do you want to complete each week?</p>
+        <div class="target-row">
+          <input type="number" min="1" max="12" id="targetInput" value="${progress.weeklyTarget}">
+          <button class="btn btn-outline" id="saveTargetBtn">Save target</button>
+        </div>
+        <div class="section-title" style="margin-top:24px;">Account</div>
+        <button class="btn btn-secondary" id="accLogoutBtn">Log out</button>
+      </div>
+      <div class="account-card">
+        <div class="section-title">Completed topics (${completedIds.length}/${TOPICS.length})</div>
+        <ul class="completed-list">${list}</ul>
+      </div>
+    </div>
+  `;
+}
+function attachAccountHandlers(){
+  document.getElementById('saveTargetBtn').onclick = async ()=>{
+    const val = parseInt(document.getElementById('targetInput').value, 10);
+    if (!val || val < 1){ showToast('Please enter a target of at least 1.'); return; }
+    currentAccount.progress.weeklyTarget = val;
+    await saveAccount(currentUser, currentAccount);
+    showToast('Target saved 🎯');
+    renderMain();
+  };
+  document.getElementById('accLogoutBtn').onclick = logout;
+}
+initAuth();
+</script>
+</body>
+</html>
